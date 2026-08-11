@@ -1,0 +1,106 @@
+reset;
+set T ordered := 2025..2050;
+
+include definitions.mod;
+include variables.mod;
+include parameters.mod;
+
+# H2 commitment year
+let ng_h2_start_year := H2YEARVAL;
+let h2_peak_year := ng_h2_start_year + 5;
+
+let theta_tech := 0.5;
+let theta_grid := 0.5;
+let theta_ccs  := 0.5;
+let n8_scrap_rate := 0.06;
+let {t in T: ord(t) > 1}
+    n8_scrap_limit[t] := n8_scrap_limit[prev(t)] * (1 + n8_scrap_rate);
+let {t in T} n5_cost_NG[t] := 10;
+let avg_emi := 1.8;
+let cap_add_common := 15000000;
+let h2_ref_cap     := 6000000;
+
+include scenarios/ccoal_mid.mod;
+include scenarios/ng_shock.mod;
+
+include modules/a_coke.mod;
+include modules/b_sinter.mod;
+include modules/c_pellets_bf.mod;
+include modules/d_blast_furnace.mod;
+include modules/e_bof.mod;
+include modules/f_pellets_coaldri.mod;
+include modules/g_pellets_ngdri.mod;
+include modules/h_pellets_h2dri.mod;
+include modules/i_dri_coal.mod;
+include modules/j_dri_ng.mod;
+include modules/k_dri_h2.mod;
+include modules/l_eaf_dri.mod;
+include modules/m_scrap_eaf.mod;
+include modules/n_steel_balance.mod;
+include modules/q_carbon_capture.mod;
+include modules/o_waste_heat.mod;
+include modules/p_power_balance.mod;
+include modules/v_capacity.mod;
+include modules/r_cost.mod;
+include modules/s_emissions.mod;
+include modules/t_additional_constraints.mod;
+
+drop min_util_bof;
+drop min_util_cdri;
+drop min_util_ngdri;
+drop min_util_h2dri;
+drop min_util_scrap;
+drop emission_monotonic;
+drop avg_emis_cap_total;
+param IMPORT_P := 20000;
+param IMPORT_REPORT := 650;
+var steel_import{T} >= 0;
+drop meet_demand;
+s.t. meet_demand_elastic{t in T}:
+    total_steel[t] + steel_import[t]
+      = base_demand * (1 + growth_rate)^(ord(t) - 1);
+param PEN := 5000;
+var emis_slack >= 0;
+param carbon_budget := avg_emi *
+    sum{t in T} base_demand * (1 + growth_rate)^(ord(t) - 1);   # 14.003 Gt
+s.t. cap_elastic:
+    (sum{t in T} total_emissions[t]) <= carbon_budget + emis_slack;
+
+param discount_factor{t in T} :=
+    1 / (1 + real_discount_rate)^(ord(t) - 1);
+
+minimize obj:
+    sum {t in T} discount_factor[t] * total_cost[t]
+    + IMPORT_P * (sum{t in T} steel_import[t])
+    + PEN * emis_slack;
+
+option solver gurobi;
+option gurobi_options 'Threads=4 TimeLimit=300 outlev=0 mipgap=0.002';
+
+solve;
+
+printf "# committed program: H2 commitment %d, study backdrop (theta 1, ng shock)\n",
+    H2YEARVAL > "PLANOUT";
+for {t in T} {
+    printf "let committed_build_bof[%d] := %.17g;\n", t, build_bof[t] >> "PLANOUT";
+    printf "let committed_build_cdri[%d] := %.17g;\n", t, build_cdri[t] >> "PLANOUT";
+    printf "let committed_build_ngdri[%d] := %.17g;\n", t, build_ngdri[t] >> "PLANOUT";
+    printf "let committed_build_h2dri[%d] := %.17g;\n", t, build_h2dri[t] >> "PLANOUT";
+    printf "let committed_build_scrap[%d] := %.17g;\n", t, build_scrap[t] >> "PLANOUT";
+    printf "let committed_build_scrapchain[%d] := %.17g;\n", t, build_scrapchain[t] >> "PLANOUT";
+    printf "let committed_build_coalchain[%d] := %.17g;\n", t, build_coalchain[t] >> "PLANOUT";
+    printf "let committed_build_ngchain[%d] := %.17g;\n", t, build_ngchain[t] >> "PLANOUT";
+    printf "let committed_build_h2elec[%d] := %.17g;\n", t, build_h2elec[t] >> "PLANOUT";
+    printf "let committed_build_h2re[%d] := %.17g;\n", t, build_h2re[t] >> "PLANOUT";
+    printf "let committed_build_ccs_bf[%d] := %.17g;\n", t, build_ccs_bf[t] >> "PLANOUT";
+    printf "let committed_build_ccs_cdri[%d] := %.17g;\n", t, build_ccs_cdri[t] >> "PLANOUT";
+    printf "let committed_build_ccs_ngdri[%d] := %.17g;\n", t, build_ccs_ngdri[t] >> "PLANOUT";
+}
+
+printf "PLANROW,%s,%.3f,%.4f,%.2f,%.5f\n",
+    solve_result,
+    (sum{t in T} discount_factor[t]*total_cost[t]) / 1e9,
+    (sum{t in T} discount_factor[t]*total_cost[t])
+      / (sum{t in T} discount_factor[t]*total_steel[t]),
+    emis_slack / 1e6,
+    (sum{t in T} total_emissions[t]) / (sum{t in T} total_steel[t]);
