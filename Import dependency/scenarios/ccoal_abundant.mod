@@ -1,0 +1,30 @@
+# Coking-coal availability: ABUNDANT. Imports grow at the
+# 2007-08 to 2022-23 steel-sector trend (+6.4%/yr, 22 -> 56 Mt)
+# from 54.5 Mt; domestic blendable supply +7.5%/yr (FY18-FY25 production CAGR)
+# from the ~6 Mt model basis.
+let ccoal_cap[2025] := 60500000;
+let ccoal_cap[2026] := 64438000;
+let ccoal_cap[2027] := 68632982;
+let ccoal_cap[2028] := 73101764;
+let ccoal_cap[2029] := 77862269;
+let ccoal_cap[2030] := 82933595;
+let ccoal_cap[2031] := 88336096;
+let ccoal_cap[2032] := 94091464;
+let ccoal_cap[2033] := 100222815;
+let ccoal_cap[2034] := 106754785;
+let ccoal_cap[2035] := 113713629;
+let ccoal_cap[2036] := 121127329;
+let ccoal_cap[2037] := 129025709;
+let ccoal_cap[2038] := 137440552;
+let ccoal_cap[2039] := 146405734;
+let ccoal_cap[2040] := 155957362;
+let ccoal_cap[2041] := 166133919;
+let ccoal_cap[2042] := 176976423;
+let ccoal_cap[2043] := 188528591;
+let ccoal_cap[2044] := 200837024;
+let ccoal_cap[2045] := 213951392;
+let ccoal_cap[2046] := 227924639;
+let ccoal_cap[2047] := 242813201;
+let ccoal_cap[2048] := 258677235;
+let ccoal_cap[2049] := 275580866;
+let ccoal_cap[2050] := 293592451;
