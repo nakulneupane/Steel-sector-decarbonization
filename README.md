@@ -2,7 +2,7 @@
 
 AMPL–Python framework for analyzing decarbonization pathways in the **Indian steel sector, 2025–2050**. The repository contains the core optimization model and computational pipelines used to generate the study results.
 
-Current studies include **H2 Delay, Fuel Availability, Feasibility Drivers, Sectoral Synergy, Monte Carlo, and Violin**. The **Adaptive Planning (Regret)** pipeline is under development.
+Current studies include **H2 Delay, Fuel Availability, Feasibility Drivers, Sectoral Synergy, Monte Carlo, and Violin** and **Adaptive Planning (Regret)**.
 
 ## Requirements
 
@@ -42,7 +42,7 @@ Steel-sector-decarbonization/
 │   │   └── plot_uncertainty.py
 │   └── violin/
 │
-└── adaptive_planning/                 # Regret analysis (in development)
+└── adaptive_planning/                 # Regret analysis 
 ```
 
 ## Running the Studies
