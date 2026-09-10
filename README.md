@@ -123,5 +123,3 @@ python run_feasibilitydrivers.py -j 6 --resume
 The `structural/` studies are deterministic and should reproduce the same results across runs, apart from negligible solver and floating-point differences.
 
 The Monte Carlo pipeline uses a fixed random seed (`20260824`) and draw sequence. The same uncertainty realizations are therefore generated on every run. Solver execution order may vary across machines, so intermediate files may not be byte-identical, but results for the same structural pathway and draw are reproducible.
-
-All downstream Monte Carlo analyses use the shared output from `run_montecarlo.py` rather than performing additional optimization runs.
